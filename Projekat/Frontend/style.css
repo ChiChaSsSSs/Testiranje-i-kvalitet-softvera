@@ -1,0 +1,57 @@
+.celaAplikacija{
+    display: flex;
+    row-gap: 5px;
+    flex-direction: column;
+}
+
+.jednaProdavnica{
+    display: flex;
+}
+
+.celaForma{
+    border: 3px solid #000000;
+    width: 300px;
+    padding: 8px;
+}
+
+.divZaLabelu{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.divZaPodatke{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    row-gap: 5px;
+    margin-top: 15px;
+}
+
+.zaDugme{
+    grid-column: 1 / 3;
+}
+
+.zaProizvode{
+    border: 3px solid black;
+    border-left: 0;
+    width: 100%;
+}
+
+.divZaProizvode{
+    display: grid;
+    grid-template-columns: 9fr 1fr;
+    margin: 10px;
+}
+
+.zaVizuelno{
+    border: 1px dashed;
+    height: 15px;
+    margin-bottom: 5px;
+}
+
+.promenaKolicine{
+    display: flex;
+    margin-left: 40px;
+    column-gap: 5px;
+}
