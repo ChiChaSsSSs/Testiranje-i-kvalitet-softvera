@@ -1,0 +1,5 @@
+1. Dodati klasu zaposleni i iz nje izvesti Vodja Smene i Prodavac
+2. Vodja smene ima nekoliko prodavaca a svaki prodavac samo jednog vodju smene.
+3. Prodavcu se obracunava cena prodatih proizvoda. 
+4. Vodja smene racuna za svaki mesec koliko je koji prodavac prodao proizvoda i na osnovu toga, najuspesnijem prodavcu dodeljuje bonus.
+
