@@ -67,7 +67,42 @@ public class IspitController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpDelete("ObrisiProizvod/{idProdavnice}/{nazivProizvoda}/{kategorijaProizvoda}/{cenaProizvoda}/{kolicina}")]
+    public async Task<ActionResult> ObrisiProizvod(int idProdavnice, string nazivProizvoda,
+                                                    string kategorijaProizvoda, double cenaProizvoda, int kolicina)
+    {
+        try
+        {
+            var trazenaProdavnica = await Context.Prodavnice.FindAsync(idProdavnice);
+            if (trazenaProdavnica == null)
+            {
+                return BadRequest("Uneta prodavnica ne postoji");
+            }
 
+            var proizvodZaBrisanje = await Context.Proizvodi.FirstOrDefaultAsync(p =>
+                p.Prodavnica!.Id == idProdavnice &&
+                p.Naziv == nazivProizvoda &&
+                p.Kategorija == kategorijaProizvoda &&
+                p.Cena == cenaProizvoda &&
+                p.DostupnaKolicina == kolicina);
+
+            if (proizvodZaBrisanje == null)
+            {
+                return BadRequest("Proizvod ne postoji u prodavnici");
+            }
+
+            Context.Proizvodi.Remove(proizvodZaBrisanje);
+            await Context.SaveChangesAsync();
+
+            return Ok($"Proizvod \"{proizvodZaBrisanje.Naziv}\" je uspesno obrisan iz prodavnice \"{trazenaProdavnica.Naziv}\".");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpGet("VratiProdavnice")]
