@@ -1,7 +1,4 @@
-1. Dodati funkciju za brisanje proizvoda
-2. Dodati funkciju za otkaz zaposlenom, ako se obrise vodja smene novi vodja smene postaje onaj prodavac tog vodje koji ima najveci bonus
-3. Mozda dodati funkciju za brisanje prodavnice ako umemo to da uradimo
-4. Dodati/Nadograditi funkciju za prodaju proizvoda tako da se obracunava ukupna cena proizvoda koje je neki prodavac prodao
-5. Dodati funkciju koja racuna koji prodavac je prodaon najvise prozivoda i dodeliti mu bonus
+1. Mozda dodati funkciju za brisanje prodavnice ako umemo to da uradimo
+2. Resi problem kod brisanja vodje smene, da li i kako treba da se odabere novi vodja(ne moze ljudi da rade bez vodju)
 
 
