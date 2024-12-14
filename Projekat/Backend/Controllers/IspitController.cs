@@ -248,6 +248,7 @@ public class IspitController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+    
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPost("DodajSmenu/{nazivSmene}/{pocetakSmene}/{krajSmene}")]
@@ -265,6 +266,150 @@ public class IspitController : ControllerBase
             await Context.Smene.AddAsync(novaSmena);
             await Context.SaveChangesAsync();
             return Ok($"Dodata je nova smena {nazivSmene} koja pocinje u {pocetakSmene}, a zavrsava se u {krajSmene}");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpGet("VratiZaposleneProdavnice/{idProdavnice}")]
+    public async Task<ActionResult> VratiZaposleneProdavnice(int idProdavnice)
+    {
+        try
+        {
+            var sviZaposleni = await Context.Zaposleni.Where(z => z.prodavnica.Id == idProdavnice)
+                                                .Select(z => new{
+                                                    imeZaposlenog = z.Ime,
+                                                    prezimeZaposlenog = z.Prezime,
+                                                    emailZaposlenog = z.Email,
+                                                    jmbgZaposlenog = z.JMBG,
+                                                    slikaZaposlenog = z.slika
+                                                }).ToListAsync();
+            return Ok(sviZaposleni);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpDelete("ObrisiZaposlenog/{idZaposlenog}")]
+    public async Task<ActionResult> ObrisiZaposlenog(int idZaposlenog)
+    {
+        try
+        {
+            var trazeniZaposleni = await Context.Zaposleni.FindAsync(idZaposlenog);
+            if (trazeniZaposleni == null)
+            {
+                return BadRequest("Uneti zaposleni ne postoji!");
+            }
+
+            Context.Zaposleni.Remove(trazeniZaposleni);
+            await Context.SaveChangesAsync();
+            return Ok("Uspesno je obrisan zaposleni");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpGet("VratiZaposlenogSaNajvecomProdajom/{idVodjeSmene}")]
+    public async Task<ActionResult> VratiZaposlenogSaNajvecomProdajom(int idVodjeSmene)
+    {
+        try
+        {
+            Prodavac ?trazeniProdavac = await Context.Zaposleni
+                                                .OfType<Prodavac>()
+                                                .Where(p => p.vodjaSmene!.Id == idVodjeSmene)
+                                                .OrderByDescending(p => p.ukupnaCenaProdatihProizvoda)
+                                                .FirstOrDefaultAsync();
+            if (trazeniProdavac == null)
+            {
+                return BadRequest("Ne postoji ni jedan prodavac ovog vodje smene");
+            }
+            return Ok(trazeniProdavac);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpPut("ResetujZaradeProdavaca/{idVodjeSmene}")]
+    public async Task<ActionResult> ResetujZaradeProdavaca(int idVodjeSmene)
+    {
+        try
+        {
+            List<Prodavac> trazeniProdavci = await Context.Zaposleni
+                                                    .OfType<Prodavac>()
+                                                    .Where(p => p.vodjaSmene!.Id == idVodjeSmene)
+                                                    .ToListAsync();
+            foreach (Prodavac p in trazeniProdavci)
+            {
+                p.ukupnaCenaProdatihProizvoda = 0;
+            }
+            await Context.SaveChangesAsync();
+            return Ok(trazeniProdavci);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpPut("DodajBonusProdavcu/{idProdavca}")]
+    public async Task<ActionResult> DodajBonusProdavcu(int idProdavca)
+    {
+        try
+        {
+            Prodavac ?trazeniProdavac = await Context.Zaposleni
+                                                .OfType<Prodavac>()
+                                                .Where(p => p.Id == idProdavca)
+                                                .FirstOrDefaultAsync();
+            if (trazeniProdavac == null)
+            {
+                return BadRequest("Trazeni prodavac ne postoji");
+            }
+            trazeniProdavac.mesecniBonus = trazeniProdavac.ukupnaCenaProdatihProizvoda*0.1;
+            await Context.SaveChangesAsync();
+            return Ok($"Bonus prodavca {trazeniProdavac.Ime} {trazeniProdavac.Prezime} je {trazeniProdavac.mesecniBonus}");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpPut("DodajProdajuProdavcu/{idProdavca}/{cenaProdaje}")]
+    public async Task<ActionResult> DodajProdajuProdavcu(int idProdavca, double cenaProdaje)
+    {
+        try
+        {
+            Prodavac ?trazeniProdavac = await Context.Zaposleni
+                                                .OfType<Prodavac>()
+                                                .Where(p => p.Id == idProdavca)
+                                                .FirstOrDefaultAsync();
+            if (trazeniProdavac == null)
+            {
+                return BadRequest("Trazeni prodavac ne postoji");
+            }
+            trazeniProdavac.ukupnaCenaProdatihProizvoda += cenaProdaje;
+            await Context.SaveChangesAsync();
+            return Ok($"Ukupna prodaja prodavca {trazeniProdavac.Ime} {trazeniProdavac.Prezime} je {trazeniProdavac.ukupnaCenaProdatihProizvoda}");
         }
         catch (Exception ex)
         {
